@@ -125,3 +125,87 @@ for (i in 1:nrow(doc_sent_df)) {
     }
   }
 }
+
+#PLSCA ON SENT_TERM AND SENT_DOC
+
+for (i in 1:nrow(sent_doc_df)) {
+  for(j in 1:ncol(sent_doc_df)) {
+    if(sent_doc_df[i,j]==0){
+      sent_doc_df[i,j]="No"
+    }else{sent_doc_df[i,j]="Yes"
+    }
+  }
+}
+
+PLSCA_2 <- tepPLSCA(sent_term_df, sent_doc_df, make_data1_nominal = F, make_data2_nominal = T)
+coordtermini_2 <- PLSCA_2$TExPosition.Data$fi[, 1:2]
+
+dist_coordtermini2 <- dist(coordtermini_2)
+hclust_termini2 <- hclust(dist_coordtermini2, method = "ward.D2")
+plot(hclust_termini2, xlab = "", hang = -1)
+
+
+
+
+
+
+
+cluster_termini_2 <- Mclust(coordtermini_2)
+summary(cluster_termini_2)
+plot(cluster_termini_2, "classification")
+text(coordtermini_2, labels = rownames(coordtermini_2), col = cluster_termini_2$classification)
+plot(cluster_termini_2, "BIC")
+plot(cluster_termini_2, "uncertainty")
+plot(cluster_termini_2, "density")
+
+kmeans_termini <- kmeans(coordtermini_2, centers = 2, nstart=10, algorithm = "MacQueen")
+summary(kmeans_termini)
+plot(coordtermini_2, col=kmeans_termini$cluster, pch=19)
+text(coordtermini_2, labels = rownames(coordtermini_2), col = kmeans_termini$cluster)
+
+library(ppclust)
+fuzzy_termini <- fcm(coordtermini_2, centers =2)
+plot(coordtermini_2, col=fuzzy_termini$cluster)
+text(coordtermini_2, labels = rownames(coordtermini_2), col = fuzzy_termini$cluster)
+
+
+
+
+
+
+plot(density(term_sent[3, ]))
+plot(density(term_sent[, 5]))
+
+#celebr & disgust
+par(mfrow=c(2, 1))
+par(mar=c(2, 2, 2, 2)+0.1)
+plot(density(term_sent[, 3]))
+plot(density(term_sent[4, ]))
+term_sent[4, ]
+term_sent[, 3]
+
+
+# AC ENCODED THROUGH 0, 1
+
+for (i in 1:nrow(doc_term)) {
+  for(j in 1:ncol(doc_term)) {
+    if(doc_term[i,j]==0){
+      doc_term[i,j]==0
+    }else{doc_term[i,j]==1
+    }
+  }
+}
+
+for (i in 1:nrow(doc_sent_matrix)) {
+  for(j in 1:ncol(doc_sent_matrix)) {
+    if(doc_sent_matrix[i,j]==0){
+      doc_sent_matrix[i,j]==0
+    }else{doc_sent_matrix[i,j]==1
+    }
+  }
+}
+
+
+term_doc_01 <- t(doc_term)
+term_sent_nuova <- term_doc_01 %*% doc_sent_matrix
+is.numeric(doc_sent_matrix[1, 1])
